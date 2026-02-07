@@ -1,0 +1,219 @@
+{
+  "info": {
+    "name": "Fin Mentor AI - Wallet & Transactions",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "000000000000000000000001" },
+    { "key": "transactionId", "value": "" },
+    { "key": "fullName", "value": "Test User" },
+    { "key": "email", "value": "test@example.com" },
+    { "key": "password", "value": "Test123456" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Signup",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"{{fullName}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"confirmPassword\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/signup",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "signup"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Signin (saves token/userId)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const data = pm.response.json();",
+              "if (data && data.token) { pm.collectionVariables.set('token', data.token); }",
+              "if (data && data.user && data.user.id) { pm.collectionVariables.set('userId', data.user.id); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/signin",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "signin"]
+        }
+      }
+    },
+    {
+      "name": "Create Wallet",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Primary Wallet\",\n  \"currency\": \"INR\",\n  \"initialBalance\": 1000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/wallet",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "wallet"]
+        }
+      }
+    },
+    {
+      "name": "Get Wallet",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/wallet",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "wallet"]
+        }
+      }
+    },
+    {
+      "name": "Create Transaction (credit)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"credit\",\n  \"amount\": 250,\n  \"description\": \"Salary\",\n  \"category\": \"income\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions"]
+        }
+      }
+    },
+    {
+      "name": "Create Transaction (debit)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"debit\",\n  \"amount\": 50,\n  \"description\": \"Groceries\",\n  \"category\": \"food\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions"]
+        }
+      }
+    },
+    {
+      "name": "List Transactions",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions?limit=50",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions"],
+          "query": [{ "key": "limit", "value": "50" }]
+        }
+      }
+    },
+    {
+      "name": "Get Transaction By Id",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions", "{{transactionId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Transaction",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"completed\",\n  \"description\": \"Updated description\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions", "{{transactionId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Transaction",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions", "{{transactionId}}"]
+        }
+      }
+    }
+  ]
+}
